@@ -10,14 +10,15 @@
 ## TABLE 설계
 1. quest.csv
 no(고유번호), name(퀘스트이름), number(개수), type(종류), activation(활성화)
-예) 1, "영어단어암기", 40, "언어", True
+ - 1, "영어단어암기", 40, "언어", True
 
 2. perform.csv
 no(고유번호), date(날짜), quest_no(퀘스트_고유번호), fulfillment(실행여부)
-예) 1, 2020-12-22, 1, False
+ - 1, 2020-12-22, 1, False
 
 3. coin.csv
 no(고유번호), reason(이유), number(개수)
+ - 1, "일일퀘스트 완료", 1
 
 ## 개발목록
  - 연속출석이벤트
