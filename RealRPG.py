@@ -15,6 +15,8 @@ TABLE_FIELD = {
     'coin' : ['date', 'reason', 'number']
 }
 
+SELECT_TODAY_QUEST = ['언어', '체력']
+
 QUEST_TYPE = ['언어', '체력', '알고리즘', '지식']
 
 def create_table():
@@ -23,58 +25,56 @@ def create_table():
             with open(table_path, 'w', encoding='utf-8-sig', newline='') as csv_file:
                 pass
 
-def attendance(today):
-    attendance_check = False
+def read_table(table_name):
+    with open(TABLE_PATH[table_name], 'r', encoding='utf-8-sig', newline='') as csv_file:
+        reader = csv.DictReader(csv_file, fieldnames=TABLE_FIELD[table_name])
+        table = pd.DataFrame(reader)
+    return table
 
-    with open(TABLE_PATH['perform'], 'r', encoding='utf-8-sig', newline='') as csv_file:
-        reader = csv.DictReader(csv_file, fieldnames=TABLE_FIELD['perform'])
-        for row in reader:
-            if row['date'] == today and row['name'] == "출석":
-                attendance_check = True
-                break
-    
-    if attendance_check is False:
-        with open(TABLE_PATH['perform'], 'a', encoding='utf-8-sig', newline='') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=TABLE_FIELD['perform'])
-            writer.writerow({'date':today, 'name':"출석", 'fulfillment':True})
-        with open(TABLE_PATH['coin'], 'a', encoding='utf-8-sig', newline='') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=TABLE_FIELD['coin'])
-            writer.writerow({'date':today, 'reason':"출석", 'number':1})
+def write_table(table_name, values):
+    with open(TABLE_PATH[table_name], 'a', encoding='utf-8-sig', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=TABLE_FIELD[table_name])
+        writer.writerow(values)
+
+def attendance(today):
+    perform = read_table('perform')
+    if perform.loc[(perform['date'] == today) & (perform['name'] == "출석")].empty:
+        write_table('perform', {'date':today, 'name':"출석", 'fulfillment':True})
+        write_table('coin', {'date':today, 'reason':"출석", 'number':1})
         print(today + " Attendance Completion!!")
 
 def continuous_attendance(today):
     continuous_day = 0
-    with open(TABLE_PATH['perform'], 'r', encoding='utf-8-sig', newline='') as csv_file:
-        reader = csv.DictReader(csv_file, fieldnames=TABLE_FIELD['perform'])
-        perform = pd.DataFrame(reader)
-    for date in perform.loc[perform['name'] == "출석", "date"]:
-        if (datetime.strptime(date, "%Y-%m-%d") - datetime.strptime(today, "%Y-%m-%d")).days == continuous_day:
+    perform = read_table('perform')
+    for date in perform.loc[perform['name'] == "출석", "date"][::-1]:
+        if (datetime.strptime(today, "%Y-%m-%d") - datetime.strptime(date, "%Y-%m-%d")).days == continuous_day:
             continuous_day += 1
         else:
             break
     print(str(continuous_day) + " Days Continuous Attendance!!")
 
     if continuous_day % 10 == 0:
-        continuous_attendance_check = False
-
-        with open(TABLE_PATH['coin'], 'r', encoding='utf-8-sig', newline='') as csv_file:
-            reader = csv.DictReader(csv_file, fieldnames=TABLE_FIELD['coin'])
-            for row in reader:
-                if row['date'] == today and row['name'] == "연속출석":
-                    continuous_attendance_check = True
-                    break
-        
-        if continuous_attendance_check is False:
-            with open(TABLE_PATH['coin'], 'a', encoding='utf-8-sig', newline='') as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=TABLE_FIELD['coin'])
-                writer.writerow({'date':today, 'reason':"연속출석", 'number':5})
+        coin = read_table('coin')
+        if coin.loc[(coin['date'] == today) & (coin['reason'] == "연속출석")].empty:
+            write_table('coin', {'date':today, 'reason':"연속출석", 'number':5})
             print("Continuous Attendance Completion is gotten 5 coins!!")
+
+def show_daily_quest(today):
+    print("***Daily Quest***")
+
+    perform = read_table('perform')
+    today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
+    if today_quest.empty:
+        pass
+    print(today_quest)
+    print()
 
 def quest_management():
     menu = int(input("\t1.Quest Registration\n\t2.Quest Update\n\t3.Go to Lobby\n\t==>"))
     if menu == 1:
         quest_registration()
     elif menu == 2:
+        pass
         # quest_update()
 
 def quest_registration():
@@ -91,9 +91,7 @@ def quest_registration():
         'type':quest_type,
         'activation':True
     }
-    with open(TABLE_PATH['quest'], 'a', encoding='utf-8-sig', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=TABLE_FIELD['quest'])
-        writer.writerow(quest)
+    write_table('quest', quest)
 
 # def quest_update():
 #     print("\t\tSelect a Quest")
@@ -115,7 +113,8 @@ def main():
     print()
 
     while True:
-        # print("일일퀘스트")
+        show_daily_quest(today)
+
         menu = int(input("1.Quest Completion\n2.Using Coins\n3.Quest Management\n4.Logout\n==>"))
         if menu == 1:
             pass
