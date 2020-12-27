@@ -15,7 +15,7 @@ TABLE_FIELD = {
     'coin' : ['date', 'reason', 'number']
 }
 
-SELECT_TODAY_QUEST = ['언어', '체력']
+SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '알고리즘']
 
 QUEST_TYPE = ['언어', '체력', '알고리즘', '지식']
 
@@ -65,9 +65,27 @@ def show_daily_quest(today):
     perform = read_table('perform')
     today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
     if today_quest.empty:
-        pass
-    print(today_quest)
+        for today_quest_type in SELECT_TODAY_QUEST_TYPE:
+            select_random_quest(today, today_quest_type)
+
+    perform = read_table('perform')
+    today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
+    for today_quest_name, today_quest_fulfillment in zip(today_quest['name'], today_quest['fulfillment']):
+        print(" O " if today_quest_fulfillment == "True" else " X " + today_quest_name)
     print()
+
+def select_random_quest(today, today_quest_type=None):
+    quest = read_table('quest')
+    if today_quest_type is None:
+        quest = quest.loc[quest['activation'] == "True"]
+    else:
+        quest = quest.loc[(quest['type'] == today_quest_type) & (quest['activation'] == "True")]
+    selected_quest = quest.iloc[np.random.randint(0, len(quest))]
+    name = f"{int(np.around((np.random.rand() * 0.4 + 0.8) * int(selected_quest['number'])))} {selected_quest['name']}"
+    write_table('perform', {'date':today, 'name':name, 'fulfillment':False})
+
+def quest_completion():
+    pass
 
 def quest_management():
     menu = int(input("\t1.Quest Registration\n\t2.Quest Update\n\t3.Go to Lobby\n\t==>"))
@@ -115,14 +133,16 @@ def main():
     while True:
         show_daily_quest(today)
 
-        menu = int(input("1.Quest Completion\n2.Using Coins\n3.Quest Management\n4.Logout\n==>"))
+        menu = int(input("1.Quest Completion\n2.Using Coins\n3.Add Random Quest\n4.Quest Management\n5.Logout\n==>"))
         if menu == 1:
             pass
         elif menu == 2:
             pass
         elif menu == 3:
-            quest_management()
+            select_random_quest(today)
         elif menu == 4:
+            quest_management()
+        elif menu == 5:
             break
 
 main()
