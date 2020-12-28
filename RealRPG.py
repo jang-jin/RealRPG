@@ -19,11 +19,11 @@ SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '알고리즘']
 
 QUEST_TYPE = ['언어', '체력', '알고리즘', '지식']
 
-def create_table():
-    for table_name, table_path in TABLE_PATH.items():
-        if not os.path.exists(table_path):
-            with open(table_path, 'w', encoding='utf-8-sig', newline='') as csv_file:
-                pass
+def create_table(table_name, init=False):
+    table_path = TABLE_PATH[table_name]
+    if not os.path.exists(table_path) or init:
+        with open(table_path, 'w', encoding='utf-8-sig', newline='') as csv_file:
+            pass
 
 def read_table(table_name):
     with open(TABLE_PATH[table_name], 'r', encoding='utf-8-sig', newline='') as csv_file:
@@ -60,7 +60,7 @@ def continuous_attendance(today):
             print("Continuous Attendance Completion is gotten 5 coins!!")
 
 def show_daily_quest(today):
-    print("***Daily Quest***")
+    print(f"***{today} Daily Quest***")
 
     perform = read_table('perform')
     today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
@@ -71,7 +71,7 @@ def show_daily_quest(today):
     perform = read_table('perform')
     today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
     for today_quest_name, today_quest_fulfillment in zip(today_quest['name'], today_quest['fulfillment']):
-        print(" O " if today_quest_fulfillment == "True" else " X " + today_quest_name)
+        print((" O " if today_quest_fulfillment == "True" else " X ") + today_quest_name)
     print()
 
 def select_random_quest(today, today_quest_type=None):
@@ -84,8 +84,26 @@ def select_random_quest(today, today_quest_type=None):
     name = f"{int(np.around((np.random.rand() * 0.4 + 0.8) * int(selected_quest['number'])))} {selected_quest['name']}"
     write_table('perform', {'date':today, 'name':name, 'fulfillment':False})
 
-def quest_completion():
-    pass
+def quest_completion(today):
+    perform = read_table('perform')
+    today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석") & (perform['fulfillment'] == "False")]
+    for i, today_quest_name in enumerate(today_quest['name']):
+        print(f"\t{i+1}. {today_quest_name}")
+    selected_quest = today_quest.iloc[int(input("\t==>"))-1, 1]
+    perform.loc[(perform['date'] == today) & (perform['name'] == selected_quest), 'fulfillment'] = True
+
+    create_table('perform', init=True)
+    for i in range(len(perform)):
+        write_table('perform', dict(perform.iloc[i]))
+    print()
+
+    write_table('coin', {'date':today, 'reason':"랜덤퀘스트 완료", 'number':1})
+    coin = read_table('coin')
+    today_coin = coin.loc[(coin['date'] == today) & (coin['reason'] == "랜덤퀘스트 완료")]
+    if len(today_coin) == 4:
+        write_table('coin', {'date':today, 'reason':"일일퀘스트 모두완료", 'number':2})
+        print("Today's Quest Completion is gotten 2 coins!!")
+        print()
 
 def quest_management():
     menu = int(input("\t1.Quest Registration\n\t2.Quest Update\n\t3.Go to Lobby\n\t==>"))
@@ -119,7 +137,9 @@ def quest_registration():
 #             print("\t\t{}")
 
 def main():
-    create_table()
+    create_table('quest')
+    create_table('perform')
+    create_table('coin')
 
     print("="*38)
     print("="*10+" WELCOME REAL RPG "+"="*10)
@@ -135,11 +155,12 @@ def main():
 
         menu = int(input("1.Quest Completion\n2.Using Coins\n3.Add Random Quest\n4.Quest Management\n5.Logout\n==>"))
         if menu == 1:
-            pass
+            quest_completion(today)
         elif menu == 2:
             pass
         elif menu == 3:
             select_random_quest(today)
+            print()
         elif menu == 4:
             quest_management()
         elif menu == 5:
