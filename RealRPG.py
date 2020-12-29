@@ -87,6 +87,8 @@ def select_random_quest(today, today_quest_type=None):
 def quest_completion(today):
     perform = read_table('perform')
     today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석") & (perform['fulfillment'] == "False")]
+    print("\tSelect the completed quest!")
+    print()
     for i, today_quest_name in enumerate(today_quest['name']):
         print(f"\t{i+1}. {today_quest_name}")
     selected_quest = today_quest.iloc[int(input("\t==>"))-1, 1]
@@ -105,6 +107,14 @@ def quest_completion(today):
         print("Today's Quest Completion is gotten 2 coins!!")
         print()
 
+def using_coins(today):
+    coin = read_table('coin')
+    print(f"\tYou have {coin['number'].sum()} coins")
+    print("\tChoose a way to use a coin.")
+    print()
+    print("\t1.유튜브 시청")
+    # int(input("\t==>"))
+    
 def quest_management():
     menu = int(input("\t1.Quest Registration\n\t2.Quest Update\n\t3.Go to Lobby\n\t==>"))
     if menu == 1:
@@ -153,7 +163,7 @@ def main():
     while True:
         show_daily_quest(today)
 
-        menu = int(input("1.Quest Completion\n2.Using Coins\n3.Add Random Quest\n4.Quest Management\n5.Logout\n==>"))
+        menu = int(input("1. Quest Completion\n2. Using Coins\n3. Add Random Quest\n4. Quest Management\n5. Logout\n==>"))
         if menu == 1:
             quest_completion(today)
         elif menu == 2:
