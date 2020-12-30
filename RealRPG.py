@@ -7,17 +7,19 @@ import pandas as pd
 TABLE_PATH = {
     'quest' : os.getcwd() + "/quest.csv", 
     'perform' : os.getcwd() + "/perform.csv", 
-    'coin' : os.getcwd() + "/coin.csv"
+    'coin' : os.getcwd() + "/coin.csv",
+    'english_word' : os.getcwd() + "/english_word.csv"
 }
 TABLE_FIELD = {
     'quest' : ['name', 'number', 'type', 'activation'], 
     'perform' : ['date', 'name', 'fulfillment'], 
-    'coin' : ['date', 'reason', 'number']
+    'coin' : ['date', 'reason', 'number'],
+    'english_word' : ['date', 'no', 'word', 'meaning']
 }
 
-SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '알고리즘']
+SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '코딩']
 
-QUEST_TYPE = ['언어', '체력', '알고리즘', '지식']
+QUEST_TYPE = ['언어', '체력', '코딩', '지식']
 
 def create_table(table_name, init=False):
     table_path = TABLE_PATH[table_name]
@@ -116,7 +118,7 @@ def using_coins(today):
     # int(input("\t==>"))
     
 def quest_management():
-    menu = int(input("\t1.Quest Registration\n\t2.Quest Update\n\t3.Go to Lobby\n\t==>"))
+    menu = int(input("\t1. Quest Registration\n\t2. Quest Update\n\t3. Go to Lobby\n\t==>"))
     if menu == 1:
         quest_registration()
     elif menu == 2:
@@ -176,4 +178,5 @@ def main():
         elif menu == 5:
             break
 
-main()
+if __name__ == "__main__":
+    main()
