@@ -1,42 +1,11 @@
 from datetime import datetime, timedelta
-import os
-import csv
 import numpy as np
-import pandas as pd
-
-TABLE_PATH = {
-    'quest' : os.getcwd() + "/quest.csv", 
-    'perform' : os.getcwd() + "/perform.csv", 
-    'coin' : os.getcwd() + "/coin.csv",
-    'english_word' : os.getcwd() + "/english_word.csv"
-}
-TABLE_FIELD = {
-    'quest' : ['name', 'number', 'type', 'activation'], 
-    'perform' : ['date', 'name', 'fulfillment'], 
-    'coin' : ['date', 'reason', 'number'],
-    'english_word' : ['date', 'no', 'word', 'meaning']
-}
+from table import *
+from english_word_generator import generate_problems
 
 SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '코딩']
 
 QUEST_TYPE = ['언어', '체력', '코딩', '지식']
-
-def create_table(table_name, init=False):
-    table_path = TABLE_PATH[table_name]
-    if not os.path.exists(table_path) or init:
-        with open(table_path, 'w', encoding='utf-8-sig', newline='') as csv_file:
-            pass
-
-def read_table(table_name):
-    with open(TABLE_PATH[table_name], 'r', encoding='utf-8-sig', newline='') as csv_file:
-        reader = csv.DictReader(csv_file, fieldnames=TABLE_FIELD[table_name])
-        table = pd.DataFrame(reader)
-    return table
-
-def write_table(table_name, values):
-    with open(TABLE_PATH[table_name], 'a', encoding='utf-8-sig', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=TABLE_FIELD[table_name])
-        writer.writerow(values)
 
 def attendance(today):
     perform = read_table('perform')
@@ -95,11 +64,14 @@ def quest_completion(today):
         print(f"\t{i+1}. {today_quest_name}")
     selected_quest = today_quest.iloc[int(input("\t==>"))-1, 1]
     perform.loc[(perform['date'] == today) & (perform['name'] == selected_quest), 'fulfillment'] = True
+    print()
+
+    if selected_quest.split(" ")[1] == "영어단어외우기":
+        perform.loc[(perform['date'] == today) & (perform['name'] == selected_quest), 'fulfillment'] = generate_problems()
 
     create_table('perform', init=True)
     for i in range(len(perform)):
         write_table('perform', dict(perform.iloc[i]))
-    print()
 
     write_table('coin', {'date':today, 'reason':"랜덤퀘스트 완료", 'number':1})
     coin = read_table('coin')

@@ -1,5 +1,32 @@
-from RealRPG import create_table, read_table, write_table
 from datetime import datetime
+import numpy as np
+from table import *
+
+def generate_problems():
+    english_word = read_table('english_word')
+    problems = []
+    errors = []
+
+    number = int(input("문제 개수 : "))
+    while len(problems) < number:
+        i = np.random.randint(0, len(english_word))
+        if i not in problems:
+            problems.append(i)
+    for i in problems:
+        answer = input(f"{english_word.loc[i, 'word']} : ")
+        if answer != english_word.loc[i, 'meaning']:
+            errors.append(i)
+    print()
+    print(f"틀린 개수 {len(errors)}/{number}")
+    
+    for i in errors:
+        print(f"{english_word.loc[i, 'word']}\t{english_word.loc[i, 'meaning']}")
+    print()
+
+    if len(errors) <= number//10:
+        return True
+    else:
+        return False
 
 def word_registration(today):
     english_word = read_table('english_word')
@@ -32,7 +59,7 @@ def main():
     while True:
         menu = int(input("1. Generate Problems\n2. Word Registration\n3. Go to Lobby\n==>"))
         if menu == 1:
-            pass
+            generate_problems()
         elif menu == 2:
             word_registration(today)
         else:
