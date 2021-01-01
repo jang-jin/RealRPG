@@ -120,6 +120,18 @@ def quest_registration():
 #         for row in reader:
 #             print("\t\t{}")
 
+def gambling():
+    coin = read_table('coin')
+    print(f"\tYou have {coin['number'].astype('int').sum()} coins")
+    print()
+    menu = int(input("\t1. A single draw\n\t2. Ten times draws\n\t3. Go to Lobby\n\t==>"))
+    if menu == 1:
+        pass
+    elif menu == 2:
+        pass
+
+
+
 def main():
     create_table('quest')
     create_table('perform')
@@ -137,16 +149,16 @@ def main():
     while True:
         show_daily_quest(today)
 
-        menu = int(input("1. Quest Completion\n2. Using Coins\n3. Add Random Quest\n4. Quest Management\n5. Logout\n==>"))
+        menu = int(input("1. Quest Completion\n2. Add Random Quest\n3. Quest Management\n4. Gambling\n5. Logout\n==>"))
         if menu == 1:
             quest_completion(today)
         elif menu == 2:
-            pass
-        elif menu == 3:
             select_random_quest(today)
             print()
-        elif menu == 4:
+        elif menu == 3:
             quest_management()
+        elif menu == 4:
+            gambling()
         elif menu == 5:
             break
 
