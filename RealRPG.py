@@ -81,29 +81,13 @@ def quest_completion(today):
         print("Today's Quest Completion is gotten 2 coins!!")
         print()
 
-def using_coins(today):
-    coin = read_table('coin')
-    print(f"\tYou have {coin['number'].sum()} coins")
-    print("\tChoose a way to use a coin.")
-    print()
-    print("\t1.유튜브 시청")
-    # int(input("\t==>"))
-    
-def quest_management():
-    menu = int(input("\t1. Quest Registration\n\t2. Quest Update\n\t3. Go to Lobby\n\t==>"))
-    if menu == 1:
-        quest_registration()
-    elif menu == 2:
-        pass
-        # quest_update()
-
 def quest_registration():
-    quest_name = input("\t\tQuest Name\n\t\t==>")
-    quest_number = int(input("\t\tQuest Number of times\n\t\t==>"))
-    print("\t\tQuest Type\n\t\t", end="")
+    quest_name = input("\tQuest Name\n\t==>")
+    quest_number = int(input("\tQuest Number of times\n\t==>"))
+    print("\tQuest Type\n\t", end="")
     for i, type_name in enumerate(QUEST_TYPE):
         print(f"{i+1}.{type_name}", end=" ")
-    quest_type = QUEST_TYPE[int(input("\n\t\t==>"))-1]
+    quest_type = QUEST_TYPE[int(input("\n\t==>"))-1]
     
     quest = {
         'name':quest_name,
@@ -112,13 +96,6 @@ def quest_registration():
         'activation':True
     }
     write_table('quest', quest)
-
-# def quest_update():
-#     print("\t\tSelect a Quest")
-#     with open(TABLE_PATH['quest'], 'r', encoding='utf-8-sig', newline='') as csv_file:
-#         reader = csv.DictReader(csv_file, fieldnames=TABLE_FIELD['quest'])
-#         for row in reader:
-#             print("\t\t{}")
 
 def gambling():
     coin = read_table('coin')
@@ -130,7 +107,13 @@ def gambling():
     elif menu == 2:
         pass
 
-
+def using_coins(today):
+    coin = read_table('coin')
+    print(f"\tYou have {coin['number'].sum()} coins")
+    print("\tChoose a way to use a coin.")
+    print()
+    print("\t1.유튜브 시청")
+    # int(input("\t==>"))
 
 def main():
     create_table('quest')
@@ -149,14 +132,14 @@ def main():
     while True:
         show_daily_quest(today)
 
-        menu = int(input("1. Quest Completion\n2. Add Random Quest\n3. Quest Management\n4. Gambling\n5. Logout\n==>"))
+        menu = int(input("1. Quest Completion\n2. Add Random Quest\n3. Quest Registration\n4. Gambling\n5. Logout\n==>"))
         if menu == 1:
             quest_completion(today)
         elif menu == 2:
             select_random_quest(today)
             print()
         elif menu == 3:
-            quest_management()
+            quest_registration()
         elif menu == 4:
             gambling()
         elif menu == 5:
