@@ -6,13 +6,15 @@ TABLE_PATH = {
     'quest' : os.getcwd() + "/quest.csv", 
     'perform' : os.getcwd() + "/perform.csv", 
     'coin' : os.getcwd() + "/coin.csv",
-    'english_word' : os.getcwd() + "/english_word.csv"
+    'english_word' : os.getcwd() + "/english_word.csv",
+    'reward' : os.getcwd() + "/reward.csv",
 }
 TABLE_FIELD = {
     'quest' : ['name', 'number', 'type', 'activation'], 
     'perform' : ['date', 'name', 'fulfillment'], 
     'coin' : ['date', 'reason', 'number'],
-    'english_word' : ['date', 'no', 'word', 'meaning']
+    'english_word' : ['date', 'no', 'word', 'meaning'],
+    'reward' : ['date', 'name', 'number'],
 }
 
 def create_table(table_name, init=False):
