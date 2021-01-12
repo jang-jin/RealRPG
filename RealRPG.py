@@ -4,7 +4,7 @@ import pandas as pd
 from table import *
 from english_word_generator import generate_problems
 
-SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '코딩']
+SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '코딩', '지식']
 
 QUEST_TYPE = ['언어', '체력', '코딩', '지식']
 
@@ -169,15 +169,29 @@ def using_rewards(today):
     print("Done Using!!")
     print()
 
-def main():
-    create_table('quest')
-    create_table('perform')
-    create_table('coin')
-    create_table('reward')
+def show_results():
+    perform = read_table('perform')
+    fulfillment = perform.loc[perform['name'] != "출석",'fulfillment']
+    print(f"\tQuest Success Rate : {fulfillment.value_counts()['True']} / {fulfillment.count()} ( {fulfillment.value_counts(1)['True']*100:.2f} % )")
+    print()
 
-    print("="*38)
-    print("="*10+" WELCOME REAL RPG "+"="*10)
-    print("="*38)
+    quest = read_table('quest')[['name', 'type']]
+    perform.loc[perform['name'] != "출석",'number'] = perform.loc[perform['name'] != "출석",'name'].str.split(" ").str[0]
+    perform.loc[perform['name'] != "출석",'name'] = perform.loc[perform['name'] != "출석",'name'].str.split(" ").str[1]
+    perform_quest = pd.merge(perform, quest, how='left')
+    fulfillment_by_type = perform_quest.groupby('type')['fulfillment'].value_counts()
+
+    for type_name in QUEST_TYPE:
+        print(f"{type_name} : {fulfillment_by_type.loc[(type_name, 'True')]} / {fulfillment_by_type.loc[type_name].sum()} ( {1} % )")
+    print(fulfillment_by_type.loc["언어"].sum())
+
+
+def main():
+    for table_name in TABLE_PATH.keys():
+        create_table(table_name)
+    print("=================================================================")
+    print("=====================    WELCOME REAL RPG   =====================")
+    print("=================================================================")
 
     today = datetime.today().strftime("%Y-%m-%d")
     attendance(today)
@@ -186,9 +200,21 @@ def main():
 
     while True:
         show_daily_quest(today)
-
-        menu = int(input("1. Quest Completion\n2. Add Random Quest\n3. Quest Registration\n4. Gambling\n5. Using Rewards\n6. Logout\n==>"))
-        if menu == 1:
+        print("          7          |          8          |          9          ")
+        print("     Show results    |                     |                     ")
+        print("-----------------------------------------------------------------")
+        print("          4          |          5          |          6          ")
+        print("       Gambling      |    Using Rewards    |                     ")
+        print("-----------------------------------------------------------------")
+        print("          1          |          2          |          3          ")
+        print("   Quest Completion  |   Add Random Quest  |  Quest Registration ")
+        print("-----------------------------------------------------------------")
+        print("                     |          0          |                     ")
+        print("                     |        Logout       |                     ")
+        menu = int(input("==>"))
+        if menu == 0:
+            break
+        elif menu == 1:
             quest_completion(today)
         elif menu == 2:
             select_random_quest(today)
@@ -199,9 +225,10 @@ def main():
             gambling(today)
         elif menu == 5:
             using_rewards(today)
-        elif menu == 6:
-            break
+        elif menu == 7:
+            show_results()
 
 if __name__ == "__main__":
-    main()
+    # main()
+    show_results()
     
