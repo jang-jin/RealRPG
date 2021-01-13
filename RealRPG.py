@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
+from colorama import init, Fore, Back, Style
 from table import *
 from english_word_generator import generate_problems
 
-SELECT_TODAY_QUEST_TYPE = ['언어', '체력', '코딩', '지식']
-
 QUEST_TYPE = ['언어', '체력', '코딩', '지식']
+
+init(autoreset=True)
 
 def attendance(today):
     perform = read_table('perform')
@@ -37,8 +38,8 @@ def show_daily_quest(today):
     perform = read_table('perform')
     today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
     if today_quest.empty:
-        for today_quest_type in SELECT_TODAY_QUEST_TYPE:
-            select_random_quest(today, today_quest_type)
+        for quest_type in QUEST_TYPE:
+            select_random_quest(today, quest_type)
 
     perform = read_table('perform')
     today_quest = perform.loc[(perform['date'] == today) & (perform['name'] != "출석")]
@@ -46,12 +47,12 @@ def show_daily_quest(today):
         print((" O " if today_quest_fulfillment == "True" else " X ") + today_quest_name)
     print()
 
-def select_random_quest(today, today_quest_type=None):
+def select_random_quest(today, quest_type=None):
     quest = read_table('quest')
-    if today_quest_type is None:
+    if quest_type is None:
         quest = quest.loc[quest['activation'] == "True"]
     else:
-        quest = quest.loc[(quest['type'] == today_quest_type) & (quest['activation'] == "True")]
+        quest = quest.loc[(quest['type'] == quest_type) & (quest['activation'] == "True")]
     selected_quest = quest.iloc[np.random.randint(0, len(quest))]
     name = f"{int(np.around((np.random.rand() * 0.4 + 0.8) * int(selected_quest['number'])))} {selected_quest['name']}"
     write_table('perform', {'date':today, 'name':name, 'fulfillment':False})
@@ -179,19 +180,21 @@ def show_results():
     perform.loc[perform['name'] != "출석",'number'] = perform.loc[perform['name'] != "출석",'name'].str.split(" ").str[0]
     perform.loc[perform['name'] != "출석",'name'] = perform.loc[perform['name'] != "출석",'name'].str.split(" ").str[1]
     perform_quest = pd.merge(perform, quest, how='left')
-    fulfillment_by_type = perform_quest.groupby('type')['fulfillment'].value_counts()
-
+    fulfillment_by_type = perform_quest.groupby('type')['fulfillment']
+    
     for type_name in QUEST_TYPE:
-        print(f"{type_name} : {fulfillment_by_type.loc[(type_name, 'True')]} / {fulfillment_by_type.loc[type_name].sum()} ( {1} % )")
-    print(fulfillment_by_type.loc["언어"].sum())
-
+        try:
+            print(f"\t{type_name} : {fulfillment_by_type.value_counts().loc[(type_name, 'True')]} / {fulfillment_by_type.value_counts().loc[type_name].sum()} ( {fulfillment_by_type.value_counts(1).loc[(type_name, 'True')]:.2f} % )")
+        except:
+            pass
+    print()
 
 def main():
     for table_name in TABLE_PATH.keys():
         create_table(table_name)
-    print("=================================================================")
-    print("=====================    WELCOME REAL RPG   =====================")
-    print("=================================================================")
+    print(Fore.RED+"============="+Fore.GREEN+"============="+Fore.YELLOW+"============="+Fore.BLUE+"============="+Fore.MAGENTA+"=============")
+    print(Fore.RED+"============="+Fore.GREEN+"========"+Fore.WHITE+Style.BRIGHT+"    WELCOME REAL RPG   "+Style.RESET_ALL+Fore.BLUE+"========"+Fore.MAGENTA+"=============")
+    print(Fore.RED+"============="+Fore.GREEN+"============="+Fore.YELLOW+"============="+Fore.BLUE+"============="+Fore.MAGENTA+"=============")
 
     today = datetime.today().strftime("%Y-%m-%d")
     attendance(today)
@@ -200,17 +203,17 @@ def main():
 
     while True:
         show_daily_quest(today)
-        print("          7          |          8          |          9          ")
-        print("     Show results    |                     |                     ")
-        print("-----------------------------------------------------------------")
-        print("          4          |          5          |          6          ")
-        print("       Gambling      |    Using Rewards    |                     ")
-        print("-----------------------------------------------------------------")
-        print("          1          |          2          |          3          ")
-        print("   Quest Completion  |   Add Random Quest  |  Quest Registration ")
-        print("-----------------------------------------------------------------")
-        print("                     |          0          |                     ")
-        print("                     |        Logout       |                     ")
+        print(Fore.CYAN+"          7          "+Fore.YELLOW+"|"+Fore.WHITE+"          8          "+Fore.YELLOW+"|"+Fore.WHITE+"          9          ")
+        print(Fore.CYAN+"     Show Results    "+Fore.YELLOW+"|"+Fore.WHITE+"                     "+Fore.YELLOW+"|"+Fore.WHITE+"                     ")
+        print(Fore.YELLOW+"-----------------------------------------------------------------")
+        print(Fore.BLUE+"          4          "+Fore.YELLOW+"|"+Fore.MAGENTA+"          5          "+Fore.YELLOW+"|"+Fore.WHITE+"          6          ")
+        print(Fore.BLUE+"       Gambling      "+Fore.YELLOW+"|"+Fore.MAGENTA+"    Using Rewards    "+Fore.YELLOW+"|"+Fore.WHITE+"                     ")
+        print(Fore.YELLOW+"-----------------------------------------------------------------")
+        print(Fore.GREEN+"          1          "+Fore.YELLOW+"|"+Fore.WHITE+"          2          "+Fore.YELLOW+"|"+Fore.WHITE+"          3          ")
+        print(Fore.GREEN+"   Quest Completion  "+Fore.YELLOW+"|"+Fore.WHITE+"   Add Random Quest  "+Fore.YELLOW+"|"+Fore.WHITE+"  Quest Registration ")
+        print(Fore.YELLOW+"-----------------------------------------------------------------")
+        print("                     "+Fore.YELLOW+"|"+Fore.RED+"          0          "+Fore.YELLOW+"|"+Fore.WHITE+"                     ")
+        print("                     "+Fore.YELLOW+"|"+Fore.RED+"        Logout       "+Fore.YELLOW+"|"+Fore.WHITE+"                     ")
         menu = int(input("==>"))
         if menu == 0:
             break
@@ -229,6 +232,5 @@ def main():
             show_results()
 
 if __name__ == "__main__":
-    # main()
-    show_results()
+    main()
     
