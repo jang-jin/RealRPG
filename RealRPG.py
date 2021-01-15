@@ -165,8 +165,9 @@ def using_rewards(today):
     for i, reward_name in enumerate(reward_list):
         print(f"\t{i+1}. {reward_name} {reward.loc[reward['name'] == reward_name, 'number'].astype('int').sum()}")
     print()
-
-    write_table('reward', {'date':today, 'name':reward_list[int(input("\t==>"))-1], 'number':-1})
+    reward_name = reward_list[int(input("\t==>"))-1]
+    reward_number = -int(input(f"\tHow many do you using {reward_name}?\n\t==>"))
+    write_table('reward', {'date':today, 'name':reward_name, 'number':reward_number})
     print("Done Using!!")
     print()
 
